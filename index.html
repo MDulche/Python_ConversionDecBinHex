@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversion Décimal, Binaire, Hexadécimal</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Conversion Décimal, Binaire, Hexadécimal</h1>
+    <input type="text" id="numberInput" placeholder="Entrez un nombre décimal" onkeydown="handleKeyDown(event)">
+    <p id="result"></p>
+    <input type="text" id="hexInput" placeholder="Entrez un nombre hexadécimal" onkeydown="handleKeyDown2(event)">
+    <p id="result2"></p>
+    <input type="text" id="binInput" placeholder="Entrez un nombre binaire" onkeydown="handleKeyDown3(event)">
+    <p id="result3"></p>
+
+    <script>
+        async function loadPyodideAndPackages() {
+            self.pyodide = await loadPyodide();
+            await pyodide.loadPackage('micropip');
+            await pyodide.runPythonAsync(`
+                def conversion_dec(number):
+                    dec = int(number)
+                    binary = bin(dec)[2:]  # Supprime le préfixe "0b"
+                    hexa = hex(dec)[2:].upper()  # Supprime le préfixe "0x" et met en majuscules
+                    return f"Décimal: {dec}, Binaire: {binary}, Hexadécimal: {hexa}"
+
+                def conversion_hex(number):
+                    dec = int(number, 16)  # Convertir la chaîne hexadécimale en nombre décimal
+                    binary = bin(dec)[2:]  # Convertir le nombre décimal en binaire et supprimer le préfixe "0b"
+                    return f"Hexadécimal: {number}, Décimal: {dec}, Binaire: {binary}"
+
+                def conversion_bin(number):
+                    dec = int(number, 2)  # Convertir la chaîne binaire en nombre décimal
+                    hexa = hex(dec)[2:].upper()  # Convertir le nombre décimal en hexadécimal et supprimer le préfixe "0x" et mettre en majuscules
+                    return f"Binaire: {number}, Décimal: {dec}, Hexadécimal: {hexa}"
+            `);
+        }
+
+        async function convertDecimal() {
+            const number = document.getElementById('numberInput').value;
+            const result = await pyodide.runPythonAsync(`conversion_dec(${number})`);
+            document.getElementById('result').innerText = result;
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter') {
+                convertDecimal();
+            }
+        }
+
+        async function convertHexadecimal() {
+            const number = document.getElementById('hexInput').value;
+            const result = await pyodide.runPythonAsync(`conversion_hex('${number}')`);
+            document.getElementById('result2').innerText = result;
+        }
+
+        function handleKeyDown2(event) {
+            if (event.key === 'Enter') {
+                convertHexadecimal();
+            }
+        }
+
+        async function convertBinaire() {
+            const number = document.getElementById('binInput').value;
+            const result = await pyodide.runPythonAsync(`conversion_bin('${number}')`);
+            document.getElementById('result3').innerText = result;
+        }
+
+        function handleKeyDown3(event) {
+            if (event.key === 'Enter') {
+                convertBinaire();
+            }
+        }
+
+        loadPyodideAndPackages();
+    </script>
+</body>
+</html>
